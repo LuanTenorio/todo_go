@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/LuanTenorio/todo_go/internal/router"
 
 func main() {
-	fmt.Println("init")
+	router.Inicialize()
 }
