@@ -12,7 +12,7 @@ type AppConfig struct {
 	DBUrl string `yaml:"db_url"`
 }
 
-var Config AppConfig
+var Env AppConfig
 
 func ReadConfig() {
 	f, err := os.Open(configPath)
@@ -22,7 +22,7 @@ func ReadConfig() {
 	defer f.Close()
 
 	decoder := yaml.NewDecoder(f)
-	err = decoder.Decode(&Config)
+	err = decoder.Decode(&Env)
 
 	if err != nil {
 		panic(err)
