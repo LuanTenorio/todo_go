@@ -10,7 +10,7 @@ create table todos(
 create table users(
     id serial primary key,
     name varchar(50) not null,
-    email varchar(60) not null,
+    email varchar(60) not null unique,
     password varchar(70) not null
 );
 

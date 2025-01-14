@@ -2,29 +2,46 @@ package config
 
 import (
 	"os"
+	"sync"
 
 	"gopkg.in/yaml.v2"
 )
 
-const configPath = "config.yml"
-
-type AppConfig struct {
-	DBUrl string `yaml:"db_url"`
+type Config struct {
+	Db     *DB
+	Server *Server
 }
 
-var Env AppConfig
+type Server struct {
+	Port int `yaml:"port"`
+}
 
-func ReadConfig() {
-	f, err := os.Open(configPath)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
+type DB struct {
+	Url string `yaml:"url"`
+}
 
-	decoder := yaml.NewDecoder(f)
-	err = decoder.Decode(&Env)
+var (
+	once           sync.Once
+	configInstance Config
+)
 
-	if err != nil {
-		panic(err)
-	}
+func GetConfig() Config {
+	once.Do(func() {
+		configPath := "config.yml"
+
+		f, err := os.Open(configPath)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		decoder := yaml.NewDecoder(f)
+		err = decoder.Decode(&configInstance)
+
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	return configInstance
 }
