@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/LuanTenorio/todo_go/internal/config"
@@ -20,7 +19,6 @@ var (
 
 func NewPostgresDatabase(conf *config.Config) Database {
 	once.Do(func() {
-		fmt.Println(conf.Db.Url)
 		db, err := sqlx.Connect("postgres", conf.Db.Url)
 		if err != nil {
 			panic("failed to connect database")

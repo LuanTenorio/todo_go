@@ -10,6 +10,8 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+const ApiPrefix = "api"
+
 type echoServer struct {
 	app  *echo.Echo
 	db   database.Database
@@ -34,6 +36,8 @@ func (s *echoServer) Start() {
 	s.app.GET("v1/health", func(c echo.Context) error {
 		return c.String(200, "OK\n")
 	})
+
+	s.bootHandlers()
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
 	s.app.Logger.Fatal(s.app.Start(serverUrl))
