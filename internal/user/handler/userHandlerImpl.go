@@ -3,10 +3,10 @@ package handler
 import (
 	"net/http"
 
+	"github.com/LuanTenorio/todo_go/internal/requestError"
 	"github.com/LuanTenorio/todo_go/internal/user/dto"
 	usecase "github.com/LuanTenorio/todo_go/internal/user/useCase"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 )
 
 type userHandlerImpl struct {
@@ -21,8 +21,9 @@ func (h *userHandlerImpl) CreateUser(c echo.Context) error {
 	userDto := new(dto.CreateUserDTO)
 
 	if err := c.Bind(userDto); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		return c.String(http.StatusBadRequest, "Bad request")
+		return requestError.NewError(c, http.StatusBadRequest, requestError.IncompatibleBody)
+	} else if err := c.Validate(userDto); err != nil {
+		return requestError.NewError(c, http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusCreated, userDto)

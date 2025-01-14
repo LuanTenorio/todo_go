@@ -5,6 +5,7 @@ import (
 
 	"github.com/LuanTenorio/todo_go/internal/config"
 	"github.com/LuanTenorio/todo_go/internal/database"
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -16,6 +17,17 @@ type echoServer struct {
 	app  *echo.Echo
 	db   database.Database
 	conf *config.Config
+}
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	if err := cv.validator.Struct(i); err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewEchoServer(conf *config.Config, db database.Database) Server {
@@ -30,6 +42,7 @@ func NewEchoServer(conf *config.Config, db database.Database) Server {
 }
 
 func (s *echoServer) Start() {
+	s.app.Validator = &CustomValidator{validator: validator.New()}
 	s.app.Use(middleware.Recover())
 	s.app.Use(middleware.Logger())
 
