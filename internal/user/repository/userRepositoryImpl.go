@@ -1,9 +1,12 @@
 package repository
 
 import (
+	"context"
+	"errors"
+
 	"github.com/LuanTenorio/todo_go/internal/database"
 	"github.com/LuanTenorio/todo_go/internal/user/dto"
-	"github.com/LuanTenorio/todo_go/internal/user/entity"
+	"github.com/lib/pq"
 )
 
 type userPGRepository struct {
@@ -14,6 +17,22 @@ func NewUserPGRepository(db database.Database) UserRepository {
 	return &userPGRepository{db: db}
 }
 
-func (r *userPGRepository) CreateUser(user *dto.CreateUserDTO) (*entity.User, error) {
-	return &entity.User{}, nil
+func (r *userPGRepository) CreateUser(ctx context.Context, user *dto.CreateUserDTO) (int, error) {
+	row, err := r.db.GetDb().NamedQueryContext(ctx, createUserQuery, user)
+
+	if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
+		return -1, pgErr
+	}
+
+	if err != nil && !errors.Is(err, context.Canceled) {
+		return -1, err
+	}
+
+	var id int
+
+	if row.Next() {
+		row.Scan(&id)
+	}
+
+	return id, nil
 }
